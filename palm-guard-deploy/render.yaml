@@ -1,0 +1,33 @@
+# Render.com Blueprint for Palm Guard.
+# Place this file at the root of aboodhaymouni/palm-guard, then create a
+# Blueprint instance from the repo on https://dashboard.render.com/blueprints.
+#
+# The Docker runtime uses the Dockerfile at the repo root.
+
+services:
+  - type: web
+    name: palm-guard
+    runtime: docker
+    plan: free            # bump to "starter" if free instance sleeps are unacceptable
+    region: frankfurt     # change to oregon / singapore / ohio as needed
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: HOST
+        value: 0.0.0.0
+      - key: PG_DB_PATH
+        value: /data/palmguard.db
+      # Optional: chat feature uses OpenRouter. Leave unset to disable.
+      - key: PG_OPENROUTER_KEY
+        sync: false
+      - key: PG_OPENROUTER_MODEL
+        value: anthropic/claude-3.5-sonnet
+    disk:
+      name: palmguard-data
+      mountPath: /data
+      sizeGB: 1

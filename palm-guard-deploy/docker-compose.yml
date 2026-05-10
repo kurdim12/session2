@@ -1,0 +1,34 @@
+# Local / LAN run for Palm Guard.
+# Place at the root of aboodhaymouni/palm-guard, then:
+#   docker compose up --build
+# The app will be reachable at http://<host-ip>:4000 from any device on the LAN.
+
+services:
+  palm-guard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: palm-guard:local
+    container_name: palm-guard
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      PG_DB_PATH: /data/palmguard.db
+      # Uncomment and set to enable the chat feature:
+      # PG_OPENROUTER_KEY: ${PG_OPENROUTER_KEY:-}
+      # PG_OPENROUTER_MODEL: anthropic/claude-3.5-sonnet
+    volumes:
+      - palmguard-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  palmguard-data:
